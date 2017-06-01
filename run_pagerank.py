@@ -6,6 +6,7 @@ from app_logger import logger
 if __name__ == "__main__":
     arg_parse = argparse.ArgumentParser()
     arg_parse.add_argument("--filename", default="pageRank_dataset.json")
+    arg_parse.add_argument("--outfile", default="pageRank_results.csv")
 
     args = arg_parse.parse_args()
 
@@ -13,7 +14,7 @@ if __name__ == "__main__":
         data = json.load(f)
 
     logger.info("Running page rank")
-    result = powerIteration(data, maxIterations=10)
+    result = powerIteration(data, maxIterations=100)
     logger.info(
         "Max page rank: {0}:{1}".format(result.idxmax(), result.max())
     )
@@ -21,4 +22,5 @@ if __name__ == "__main__":
         result.idxmin(), result.min())
     )
     logger.info("Writing results to csv")
-    result.to_csv("page_rank_result.csv")
+    print(result.columns)
+    result.to_csv(args.outfile)
