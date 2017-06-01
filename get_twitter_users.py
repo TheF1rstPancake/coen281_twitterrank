@@ -40,9 +40,9 @@ if __name__ == "__main__":
                 _method="POST",
             )
         except TwitterHTTPError as e:
-            logger.warning("Twitter returned error: {0}".format(e))
-            # 429 means we exceeed the rate limit.  Go to sleep and try again
-            if(e.code == 429):
+            logger.warning("Twitter returned error: {0}".format(e.__dict__))
+            # 88 means we exceeed the rate limit.  Go to sleep and try again
+            if(e.response_data['errors'][0]['code'] == 88):
                 try:
                     time.sleep((60*16))
                     r = t.users.lookup(
