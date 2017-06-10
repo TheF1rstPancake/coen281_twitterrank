@@ -78,7 +78,7 @@ def streamData(conn, twitter_api, query):
     # and then write it to the database
     for i in iterator:
         try:
-            f = _formatData(i)
+            f = _formatData(
             # if formatData returns None, then there was an issue and we should continue through
             if f is None:
                 logger.info("Processed {0} tweets".format(num_items))
