@@ -1,5 +1,5 @@
 """
-Default logger for the WeDemo application.
+Default logger for the application.
 
 Uses the built in Python logging module
 along with a 3rd party module called *coloredlogs* to generate logs.

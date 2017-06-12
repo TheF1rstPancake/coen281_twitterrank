@@ -1,6 +1,7 @@
 appnope==0.1.0
 certifi==2017.4.17
 chardet==3.0.3
+colorama==0.3.9
 cycler==0.10.0
 decorator==4.0.11
 future==0.16.0
@@ -28,3 +29,4 @@ traitlets==4.3.2
 twitter==1.17.1
 urllib3==1.21.1
 wcwidth==0.1.7
+win-unicode-console==0.5
