@@ -38,9 +38,9 @@ The environment variables are:
   4. TWITTER_API_SECRET
 
 Once these values are set, you can run the script collection by:
-  `python get_tweets.py formatted_data.json "trump, donald trump, realDonaldTrump"`
+  `python get_tweets.py formatted_data.json "trump, donald trump, realDonaldTrump --database database.db"`
 
-The first argument is the formatted dataset from the previous step.  The second is a query that you want to gather tweets for.  In our project we used "trump, donald trump, realDonaldTrump" which looks for any tweets that have the phrases "trump", "donald trump", or "realDonaldTrump".
+The first argument is the formatted dataset from the previous step.  The second is a query that you want to gather tweets for.  In our project we used "trump, donald trump, realDonaldTrump" which looks for any tweets that have the phrases "trump", "donald trump", or "realDonaldTrump".  The third is optional where you can set the name of the file where the SQLite database will be written (defaults to *database.db*).
 
 This process will also loaded the social graph from the formatted_data.json file into a table called "users".  That loading process can take some time and only needs to be run once.  You can skip that process by calling:
  `python get_tweets.py formatted_data.json "trump, donald trump, realDonaldTrump" --skip_table_load`
@@ -60,3 +60,26 @@ The tweets will be written to a table named "tweets" which will contain:
 
 You can join these tables with the following query:
   `SELECT * FROM users, tweets WHERE users.id = tweets.user_id`
+
+## Running PageRank
+Now that we have our social graph and our tweets, we can run our ranking algorithm.  We've implemented a simple version of Google's PageRank to rank the different nodes in the social graph.
+
+To run the ranking algorithm:
+ `python small_pagerank.py --infile formatted_dataset.json --outfile ranks.csv --max_iters 50 --epsilon 0.8`
+
+The `max_iters` and `epsilon` paramters can be whatever you want them to be, but these are the values we used in our paper.
+
+This script will take in our JSON formatted social graph and output a CSV file where each row is the ID of a user followed by their PageRank.
+
+## Running Sentiment Analysis
+We provide a script for running straight sentiment analysis.  The results of this script are added to our SQLite database under a table named *sentiment*.  This table will include:
+  1. *id*: the ID of the tweet
+  2. *polarity*: a float value ranging from -1 to 1, with -1 being negative sentiment and 1 being positive sentiment.
+  3. *subjectivity*: a float value ranging from 0 to 1 with 0 being objective and 1 being extremely subjective.
+
+To run the script:
+  `python sentiment.py database.db`
+
+The first argument is the name of the database file that you created when running `get_tweets.py`.
+
+## Running PageRank and Sentiment Analysis

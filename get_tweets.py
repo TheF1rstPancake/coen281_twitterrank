@@ -7,6 +7,7 @@ import sqlite3
 import os
 import time
 
+
 def _createUserTable(conn, force=False):
     logger.info("Creating user table")
     c = conn.cursor()
@@ -23,16 +24,18 @@ def _createUserTable(conn, force=False):
     c.execute(query)
     conn.commit()
 
+
 def _fillUserTable(conn, data):
     c = conn.cursor()
 
     query = "INSERT OR REPLACE INTO users VALUES ({0}, {1})"
     logger.info("Loading data into user table")
-    for k,v in data.items():
-        q = query.format(k ,v)
+    for k, v in data.items():
+        q = query.format(k, v)
         c.execute(q)
 
     conn.commit()
+
 
 def _createTweetTable(conn, force=False):
     logger.info("Creating tweet table")
@@ -49,6 +52,7 @@ def _createTweetTable(conn, force=False):
     c.execute(query)
     conn.commit()
 
+
 def _formatData(data):
     if "user" not in data:
         return
@@ -63,6 +67,7 @@ def _formatData(data):
         "tweet": data['text']
     }
     return (d['id'], d['user_id'], d['tweet'])
+
 
 def streamData(conn, twitter_api, query):
     c = conn.cursor()
@@ -79,13 +84,14 @@ def streamData(conn, twitter_api, query):
     for i in iterator:
         try:
             f = _formatData(
-            # if formatData returns None, then there was an issue and we should continue through
+            # if formatData returns None, then there was an issue and we should
+            # continue through
             if f is None:
                 logger.info("Processed {0} tweets".format(num_items))
                 continue
             c.execute(insert, f)
             conn.commit()
-            num_items = num_items + 1
+            num_items=num_items + 1
             if num_items % 100000 == 0:
                 logger.info("Processed {0} tweets".format(num_items))
                 if num_items >= 10000000:
@@ -99,13 +105,17 @@ def streamData(conn, twitter_api, query):
 
 
 if __name__ == "__main__":
-    arg_parse = argparse.ArgumentParser()
+    arg_parse=argparse.ArgumentParser()
     arg_parse.add_argument(
-        "filename", help="JSON file representing social graph"
+        "filename",
+        help="JSON file representing social graph"
     )
+
     arg_parse.add_argument(
-        "query", help="The query to pass to the Twitter streaming API"
+        "query",
+        help="The query to pass to the Twitter streaming API"
     )
+
     arg_parse.add_argument(
         "--force_tables",
         help="Force table creation.  "
@@ -113,31 +123,34 @@ if __name__ == "__main__":
         action="store_true",
         default=False
     )
-    arg_parse.add_argument(\
+
+    arg_parse.add_argument(
         "--skip_table_load",
         help="Skip the table loading process.",
         action="store_true",
         default=False
     )
-
-    args = arg_parse.parse_args()
+    arg_parse.add_argument(
+        "--database",
+        help="Name of the SQLite database where you want data written to",
+        default="database.db"
+    )
+    args=arg_parse.parse_args()
     # connect to database
-    conn = sqlite3.connect("database.db")
+    conn=sqlite3.connect(args.database)
 
     logger.info("Loading social graph")
-    data = json.load(open(args.filename, 'r'))
-    l = list(data.keys())
+    data=json.load(open(args.filename, 'r'))
+    l=list(data.keys())
 
     # create hash of the user_ids
-    NUM_USERS = len(l)
-    users = {i:j for i,j in zip(l, range(NUM_USERS))}
+    NUM_USERS=len(l)
+    users={i: j for i, j in zip(l, range(NUM_USERS))}
     del(data)
     del(l)
 
     # assign some static variables
-    _formatData.num_users = NUM_USERS
-
-
+    _formatData.num_users=NUM_USERS
 
     # create and fill the user table
     if not args.skip_table_load:
@@ -149,7 +162,7 @@ if __name__ == "__main__":
 
     # begin streaming tweets and putting them into the database
     logger.info("Setting up stream")
-    t = TwitterStream(
+    t=TwitterStream(
         auth=OAuth(
             os.environ["TWITTER_API_KEY"],
             os.environ["TWITTER_API_SECRET"],

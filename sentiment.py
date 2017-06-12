@@ -1,19 +1,22 @@
 import re
 import sqlite3
 from textblob import TextBlob
-
+import argparse
 
 class TwitterClient(object):
     '''
     Generic Twitter Class for sentiment analysis.
     '''
+    def __init__(self, database):
+        self.database = database
+
     def fetch_tweets(self):
         print("fetching tweets")
         tweets = []
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect(self.database)
         cursor = conn.execute("SELECT * from TWEETS")
         for row in cursor:
-            tweet = {"id":row[0], "tweet":row[2]}
+            tweet = {"id": row[0], "tweet": row[2]}
             tweets.append(tweet)
         conn.close()
         print("finished fetching tweets")
@@ -24,8 +27,10 @@ class TwitterClient(object):
         conn = sqlite3.connect('database.db')
         cur = conn.cursor()
         cur.execute('DROP TABLE IF EXISTS sentiment')
-        cur.execute('CREATE TABLE sentiment (id INT PRIMARY KEY NOT NULL, polarity REAL, subjectivity REAL)')
-        cur.executemany('INSERT INTO sentiment (id, polarity, subjectivity) VALUES(?,?,?)',tweets)
+        cur.execute(
+            'CREATE TABLE sentiment (id INT PRIMARY KEY NOT NULL, polarity REAL, subjectivity REAL)')
+        cur.executemany(
+            'INSERT INTO sentiment (id, polarity, subjectivity) VALUES(?,?,?)', tweets)
         print("Finished writing tweets")
         conn.commit()
         conn.close()
@@ -61,15 +66,14 @@ class TwitterClient(object):
             current = (tweet['id'], sentiment.polarity, sentiment.subjectivity)
             tweets.append(current)
 
-
         print("finished processing tweets")
         # return parsed tweets
         return tweets
 
 
-def main():
+def main(database):
     # creating object of TwitterClient Class
-    client = TwitterClient()
+    client = TwitterClient(database)
     # calling function to get tweets
     tweets = client.get_tweets()
 
@@ -78,4 +82,12 @@ def main():
 
 if __name__ == "__main__":
     # calling main function
-    main()
+    arg_parse = argparse.ArgumentParser()
+    arg_parse.add_argument(
+        "database",
+        default="database.db",
+        help="Name of the SQLite database file"
+    )
+
+    args = arg_parse.parse_args()
+    main(args.database)
