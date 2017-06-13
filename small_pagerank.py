@@ -2,6 +2,7 @@ import json
 import sys
 import math
 import argparse
+import sqlite3
 
 
 def vector_diff_norm(vector1, vector2):
@@ -12,8 +13,32 @@ def vector_diff_norm(vector1, vector2):
     return math.sqrt(sum)
 
 
+def writeToDatabase(data, database):
+    """
+    Write data to database
+    """
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    c.execute("DROP TABLE IF EXISTS ranks")
+
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS "
+        "ranks (id INTEGER UNIQUE, rank REAL)"
+    )
+    query = "INSERT INTO ranks VALUES (?, ?);"
+    for k, v in data.items():
+        c.execute(query, (k, v))
+
+    # commit and close
+    conn.commit()
+    conn.close()
+    return True
+
+
 def pagerank_iteration(graph, ranks, beta):
-    """run one iteration of pagerank, using the given graph and rank vector"""
+    """
+    run one iteration of pagerank, using the given graph and rank vector
+    """
     new_ranks = {}
     graph_len = len(graph)
     # Collect the sum of deadend outputs.  Add it to each element
@@ -40,9 +65,11 @@ def pagerank_iteration(graph, ranks, beta):
 
 
 def do_pagerank(graph, max_iterations=100, epsilon=0, beta=0.8):
-    """do the PageRank.  Terminate either after max_iterations or when the difference norm between successive PageRank vectors is less than epsilon.  (1-beta) is probability of a hypothetical user jumping to a random node.
+    """
+    do the PageRank.  Terminate either after max_iterations or when the difference norm between successive PageRank vectors is less than epsilon.  (1-beta) is probability of a hypothetical user jumping to a random node.
 
-Return the final PageRank vector, which is actually a dictionary of (key, pagerank) pairs"""
+    Return the final PageRank vector, which is actually a dictionary of (key, pagerank) pairs
+    """
     # build initial PageRank vector, n entries of the value 1/n.  this
     # is not actually a vector, but a dictionary, since ids (keys) are
     # not necessarily consecutive.
@@ -73,6 +100,11 @@ if __name__ == "__main__":
         "--outfile",
         default="ranks.csv",
         help="Name of the file to output comma-separated (id,rank) pairs to."
+    )
+    arg_parse.add_argument(
+        "--database",
+        default="database.db",
+        help="Name of SQLite database file to write data to"
     )
     arg_parse.add_argument(
         "--max_iters",
@@ -108,3 +140,5 @@ if __name__ == "__main__":
 
     for user_id in ranks:
         outfile.write("{0},{1}\n".format(user_id, ranks[user_id]))
+
+    writeToDatabase(ranks, args.database)

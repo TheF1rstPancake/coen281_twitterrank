@@ -1,4 +1,11 @@
-# COEN 281 Group 7 Term Project
+# Ranking social media content to aid predictive modeling
+COEN 281 Group 7 Term Project
+
+Authors:
+  - Giovanni Briggs
+  - Maxen Chung
+  - Jeffery Wick
+  - Vincent Tai
 
 ## Initial Setup
 Our code is written in Python 3.5.  We have included a *requirements.txt* file that includes all of the packages necessary to run our project.  To install them run `pip install -r requirements.txt`.
@@ -46,10 +53,10 @@ This process will also loaded the social graph from the formatted_data.json file
  `python get_tweets.py formatted_data.json "trump, donald trump, realDonaldTrump" --skip_table_load`
 
  The user table contains:
-  - *id*: a unique integer.  All of the ids are sequential from 0 to the number of users
-  - *user_id*: the user id from the formatted dataset
+  - *id*: the unique user ID from the formatted dataset
+  - *user_id*: a unique integer.  All of the ids are sequential from 0 to the number of users.
 
- The script will run and continue collecting Tweets until:
+The script will run and continue collecting Tweets until:
   a) it has collected 10,000,000 tweets (completely arbitrarily chosen number to prevent dataset from growing too large)
   b) you kill the script
 
@@ -59,17 +66,21 @@ The tweets will be written to a table named "tweets" which will contain:
   - *tweet*: the actual text of the tweet
 
 You can join these tables with the following query:
-  `SELECT * FROM users, tweets WHERE users.id = tweets.user_id`
+  `SELECT * FROM users, tweets WHERE users.user_id = tweets.user_id`
 
 ## Running PageRank
 Now that we have our social graph and our tweets, we can run our ranking algorithm.  We've implemented a simple version of Google's PageRank to rank the different nodes in the social graph.
 
 To run the ranking algorithm:
- `python small_pagerank.py --infile formatted_dataset.json --outfile ranks.csv --max_iters 50 --epsilon 0.8`
+ `python small_pagerank.py --infile formatted_dataset.json --outfile ranks.csv --database database.db --max_iters 50 --epsilon 0.8`
 
 The `max_iters` and `epsilon` paramters can be whatever you want them to be, but these are the values we used in our paper.
 
-This script will take in our JSON formatted social graph and output a CSV file where each row is the ID of a user followed by their PageRank.
+This script will take in our JSON formatted social graph and output a CSV file where each row is the ID of a user followed by their PageRank.  It will also write to the database at a table named *ranks*.  This table includes:
+  1. *id*: the unique user ID
+  2. *rank*: the rank of that user in the social graph
+
+The reason we included a CSV output for this was beecause we originally wanted the rank to be more portable.  We figured that the combination of the JSON formatted social graph and the CSV rank results could have greater uses outside of this application.
 
 ## Running Sentiment Analysis
 We provide a script for running straight sentiment analysis.  The results of this script are added to our SQLite database under a table named *sentiment*.  This table will include:
@@ -83,3 +94,12 @@ To run the script:
 The first argument is the name of the database file that you created when running `get_tweets.py`.
 
 ## Running PageRank and Sentiment Analysis
+We have a final script named `combine.py` that combines the ranking results with the sentiment analysis to give us a final weighted sentiment analysis result.
+
+  `python combine.py database.db`
+
+This will run the combination metric and output the 4 values:
+  1. **Positive (Unranked)**: The percentage of tweets that are *positive* using basic sentiment analysis
+  2. **Negative (Unranked)**: The percentage of tweets that are *negative* using basic sentiment analysis
+  3. **Positive (Ranked)**: The percentage of tweets that are *positive* using the weighted (ranked) sentiment analysis
+  4. **Negative (Ranked)**: The percentage of tweets that are *negative* using the weighted sentiment analysis
