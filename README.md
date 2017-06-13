@@ -103,6 +103,3 @@ This will run the combination metric and output the 4 values:
   2. **Negative (Unranked)**: The percentage of tweets that are *negative* using basic sentiment analysis
   3. **Positive (Ranked)**: The percentage of tweets that are *positive* using the weighted (ranked) sentiment analysis
   4. **Negative (Ranked)**: The percentage of tweets that are *negative* using the weighted sentiment analysis
-
-## Sample Datasets
-In our final submission we included our *formatted_data.json* and *database.db* files.  *formatted_data.json* includes the JSON formatted social graph created from the ASU dataset.  *database.db* has all four tables loaded with data.
