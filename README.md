@@ -72,7 +72,7 @@ You can join these tables with the following query:
 Now that we have our social graph and our tweets, we can run our ranking algorithm.  We've implemented a simple version of Google's PageRank to rank the different nodes in the social graph.
 
 To run the ranking algorithm:
- `python small_pagerank.py --infile formatted_dataset.json --outfile ranks.csv --database database.db --max_iters 50 --epsilon 0.8`
+ `python small_pagerank.py --infile formatted_dataset.json --outfile ranks.csv --database database.db --max_iters 50 --beta 0.8`
 
 The `max_iters` and `epsilon` paramters can be whatever you want them to be, but these are the values we used in our paper.
 
@@ -103,3 +103,6 @@ This will run the combination metric and output the 4 values:
   2. **Negative (Unranked)**: The percentage of tweets that are *negative* using basic sentiment analysis
   3. **Positive (Ranked)**: The percentage of tweets that are *positive* using the weighted (ranked) sentiment analysis
   4. **Negative (Ranked)**: The percentage of tweets that are *negative* using the weighted sentiment analysis
+
+## Sample Datasets
+In our final submission we included our *formatted_data.json* and *database.db* files.  *formatted_data.json* includes the JSON formatted social graph created from the ASU dataset.  *database.db* has all four tables loaded with data.
