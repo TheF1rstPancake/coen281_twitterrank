@@ -10,7 +10,7 @@ ipython-genutils==0.2.0
 jedi==0.10.2
 matplotlib==2.0.2
 nltk==3.2.4
-numpy==1.12.1
+numpy==1.22.0
 oauthlib==2.0.2
 pandas==0.20.1
 pexpect==4.2.1
